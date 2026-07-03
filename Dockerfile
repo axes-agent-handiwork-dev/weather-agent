@@ -1,5 +1,8 @@
 # The agent image Chat Plot runs, one step per container invocation.
-FROM python:3.12-slim
+# Pin the platform: Chat Plot's VMs are amd64, so the image must be amd64 even
+# when built on an arm64 machine (e.g. Apple Silicon). Without this a native
+# build yields an arm64 image that fails on the VM with "exec format error".
+FROM --platform=linux/amd64 python:3.12-slim
 
 # The uv binary, copied from the official image.
 COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/

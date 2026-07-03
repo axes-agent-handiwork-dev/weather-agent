@@ -63,6 +63,9 @@ pins `axes-client` via the local `[tool.uv.sources]` override; once it is
 published, drop that override and re-run `uv lock` so the lock resolves from
 PyPI — then:
 
+The Dockerfile pins `--platform=linux/amd64` (Chat Plot's VMs are amd64), so a
+plain `docker build` on any host produces an amd64 image:
+
 ```bash
 docker build -t weather-agent .
 echo '{"verb":"run_tool","tool_call":{"name":"get_forecast","arguments":{"location":"Paris"}}}' \
