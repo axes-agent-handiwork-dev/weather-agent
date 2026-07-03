@@ -3,23 +3,49 @@
 from __future__ import annotations
 
 import json
+import time
+import urllib.error
 import urllib.parse
 import urllib.request
 from typing import Any
 
 from axes.agent import RunContext, Tool
-
-from agent.schemas import ForecastArguments, ForecastContent
+from pydantic import BaseModel
 
 GEOCODE_URL = "https://geocoding-api.open-meteo.com/v1/search"
 FORECAST_URL = "https://api.open-meteo.com/v1/forecast"
+REQUEST_ATTEMPTS = 3
+RETRY_BACKOFF_SECONDS = 2
+
+
+class ForecastArguments(BaseModel):
+    """Input to the forecast tool."""
+
+    location: str
+
+
+class ForecastContent(BaseModel):
+    """A day's conditions for one place."""
+
+    place: str
+    highTemperatureCelsius: float
+    lowTemperatureCelsius: float
+    precipitationProbability: int
+    windSpeedKilometersPerHour: float
 
 
 def _get_json(url: str, params: dict[str, Any]) -> dict[str, Any]:
     query = urllib.parse.urlencode(params)
-    with urllib.request.urlopen(f"{url}?{query}", timeout=10) as resp:
-        data: dict[str, Any] = json.load(resp)
-    return data
+    for attempt in range(REQUEST_ATTEMPTS):
+        try:
+            with urllib.request.urlopen(f"{url}?{query}", timeout=10) as resp:
+                data: dict[str, Any] = json.load(resp)
+            return data
+        except (urllib.error.URLError, TimeoutError, OSError):
+            if attempt == REQUEST_ATTEMPTS - 1:
+                raise
+            time.sleep(RETRY_BACKOFF_SECONDS * (attempt + 1))
+    raise RuntimeError("unreachable")
 
 
 class GetForecast(Tool[ForecastArguments, ForecastContent]):
@@ -52,8 +78,9 @@ class GetForecast(Tool[ForecastArguments, ForecastContent]):
         name = place["name"]
         return ForecastContent(
             place=f"{name}, {country}" if country else name,
-            high_c=daily["temperature_2m_max"][0],
-            low_c=daily["temperature_2m_min"][0],
-            precip_prob=daily["precipitation_probability_max"][0] or 0,
-            wind_kph=daily["wind_speed_10m_max"][0],
+            highTemperatureCelsius=daily["temperature_2m_max"][0],
+            lowTemperatureCelsius=daily["temperature_2m_min"][0],
+            precipitationProbability=daily["precipitation_probability_max"][0]
+            or 0,
+            windSpeedKilometersPerHour=daily["wind_speed_10m_max"][0],
         )

@@ -72,7 +72,7 @@ wheels = [
 [[package]]
 name = "axes-client"
 version = "0.2.0"
-source = { git = "ssh://git@github.com/Roker-Research/axes-client.git?branch=main#fc6d29c25169f5e08a59ebde6295cd8f23315e0e" }
+source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "click" },
     { name = "httpx" },
@@ -80,6 +80,10 @@ dependencies = [
     { name = "polars" },
     { name = "pyarrow" },
     { name = "pydantic" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/86/40/4fd15f6508bc474c704be6376c3a4a518cc8a63a415431fbd271cae5c7d4/axes_client-0.2.0.tar.gz", hash = "sha256:436794963ec7ebac809bd63e95df6bb80e9ea71254302ddb9d90238b40a70635", size = 48181, upload-time = "2026-07-03T16:00:53.113Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/85/dc/569c429dd44fa8c378fd798a1a1f66fc7555e0c6943a4c54933e992ec90f/axes_client-0.2.0-py3-none-any.whl", hash = "sha256:0b8e2daec22e82400fb6cf102a0c80045dbe0a506fcae8442173cd829da9da2b", size = 22069, upload-time = "2026-07-03T16:00:52.11Z" },
 ]
 
 [[package]]
@@ -579,7 +583,7 @@ dev = [
 ]
 
 [package.metadata]
-requires-dist = [{ name = "axes-client", git = "ssh://git@github.com/Roker-Research/axes-client.git?branch=main" }]
+requires-dist = [{ name = "axes-client", specifier = ">=0.2" }]
 
 [package.metadata.requires-dev]
 dev = [

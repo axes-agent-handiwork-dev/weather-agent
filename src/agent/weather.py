@@ -10,7 +10,6 @@ returned as ``content``.
 from __future__ import annotations
 
 import json
-from typing import Any
 
 from axes.agent import (
     Agent,
@@ -20,25 +19,26 @@ from axes.agent import (
     PlanResult,
     ToolCall,
 )
+from pydantic import BaseModel
 
-from agent.advisor import ClothingAdvisor
-from agent.schemas import WeatherArguments, WeatherContent
+from agent.clothing_advisor import ClothingAdvisor
 from agent.tools import GetForecast
 
 
-def _tool_result(
-    messages: list[ChatMessage], tool_name: str
-) -> dict[str, Any] | None:
-    """The most recent result of ``tool_name`` in history, if any.
+class WeatherArguments(BaseModel):
+    """How the weather agent is invoked."""
 
-    Chat Plot maps a tool/subagent result into a ``tool``-role message whose
-    ``name`` is the tool and whose ``content`` is the JSON of its result.
-    """
-    for m in reversed(messages):
-        if m.role == "tool" and m.name == tool_name and m.content:
-            parsed: dict[str, Any] = json.loads(m.content)
-            return parsed
-    return None
+    location: str
+    when: str = "today"
+
+
+class WeatherContent(BaseModel):
+    """What a completed weather report returns."""
+
+    summary: str
+    highTemperatureCelsius: float
+    lowTemperatureCelsius: float
+    advice: str
 
 
 class WeatherAgent(Agent):
@@ -53,7 +53,14 @@ class WeatherAgent(Agent):
     }
 
     def plan_step(self, messages: list[ChatMessage]) -> PlanResult:
-        forecast = _tool_result(messages, "get_forecast")
+        # Chat Plot maps a tool/subagent result into a ``tool``-role message
+        # whose ``name`` is the tool and whose ``content`` is its result JSON.
+        results = {
+            m.name: json.loads(m.content)
+            for m in messages
+            if m.role == "tool" and m.name and m.content
+        }
+        forecast = results.get("get_forecast")
         if forecast is None:
             # Step 1: fetch the forecast.
             return Message(
@@ -64,7 +71,17 @@ class WeatherAgent(Agent):
                     )
                 ]
             )
-        advice = _tool_result(messages, "clothing_advisor")
+        if "highTemperatureCelsius" not in forecast:
+            # The tool returned an error payload rather than a forecast;
+            # surface it instead of KeyError-ing on the missing fields.
+            reason = (
+                forecast.get("error") or "get_forecast returned no forecast"
+            )
+            return Finish(
+                reason="get_forecast failed",
+                content={"error": reason},
+            )
+        advice = results.get("clothing_advisor")
         if advice is None:
             # Step 2: hand the conditions to the clothing_advisor subagent.
             return Message(
@@ -72,24 +89,43 @@ class WeatherAgent(Agent):
                     ToolCall(
                         name="clothing_advisor",
                         arguments={
-                            "high_c": forecast["high_c"],
-                            "low_c": forecast["low_c"],
-                            "precip_prob": forecast["precip_prob"],
-                            "wind_kph": forecast["wind_kph"],
+                            "highTemperatureCelsius": forecast[
+                                "highTemperatureCelsius"
+                            ],
+                            "lowTemperatureCelsius": forecast[
+                                "lowTemperatureCelsius"
+                            ],
+                            "precipitationProbability": forecast[
+                                "precipitationProbability"
+                            ],
+                            "windSpeedKilometersPerHour": forecast[
+                                "windSpeedKilometersPerHour"
+                            ],
                         },
                     )
                 ]
+            )
+        if "advice" not in advice:
+            # The subagent returned an error payload rather than a
+            # recommendation; surface it instead of KeyError-ing on the
+            # missing field.
+            reason = (
+                advice.get("error") or "clothing_advisor returned no advice"
+            )
+            return Finish(
+                reason="clothing_advisor failed",
+                content={"error": reason},
             )
         # Step 3: combine imperatively into the finished report.
         report = WeatherContent(
             summary=(
                 f"{forecast['place']} {self.arguments.when}: "
-                f"{forecast['low_c']:.0f}–{forecast['high_c']:.0f}°C, "
-                f"{forecast['precip_prob']}% chance of rain."
+                f"{forecast['lowTemperatureCelsius']:.0f}–"
+                f"{forecast['highTemperatureCelsius']:.0f}°C, "
+                f"{forecast['precipitationProbability']}% chance of rain."
             ),
-            high_c=forecast["high_c"],
-            low_c=forecast["low_c"],
+            highTemperatureCelsius=forecast["highTemperatureCelsius"],
+            lowTemperatureCelsius=forecast["lowTemperatureCelsius"],
             advice=advice["advice"],
-            items=advice["items"],
         )
         return Finish(reason="report assembled", content=report.model_dump())

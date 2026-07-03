@@ -23,9 +23,8 @@ package is named `agent` and exposes `root`, so the framework's default
 | path                        | role                                        |
 | --------------------------- | ------------------------------------------- |
 | `src/agent/weather.py`      | `WeatherAgent`, the procedural root         |
-| `src/agent/advisor.py`      | `ClothingAdvisor`, the LLM subagent         |
+| `src/agent/clothing_advisor.py` | `ClothingAdvisor`, the LLM subagent     |
 | `src/agent/tools.py`        | `GetForecast`, the leaf tool                |
-| `src/agent/schemas.py`      | the `*Arguments` / `*Content` contracts     |
 | `src/agent/prompt.md`       | the `ClothingAdvisor` system prompt (Jinja) |
 | `src/agent/__init__.py`     | exposes `root`                              |
 

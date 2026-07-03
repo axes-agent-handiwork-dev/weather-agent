@@ -6,10 +6,6 @@ readme = "README.md"
 requires-python = ">=3.12"
 dependencies = ["axes-client>=0.2"]
 
-[tool.uv.sources]
-# Temporary: pull axes-client 0.2 from GitHub until it's published to PyPI.
-axes-client = { git = "ssh://git@github.com/Roker-Research/axes-client.git", branch = "main" }
-
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
