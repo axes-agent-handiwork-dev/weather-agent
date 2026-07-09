@@ -71,7 +71,7 @@ wheels = [
 
 [[package]]
 name = "axes-client"
-version = "0.2.0"
+version = "0.3.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "click" },
@@ -81,9 +81,9 @@ dependencies = [
     { name = "pyarrow" },
     { name = "pydantic" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/86/40/4fd15f6508bc474c704be6376c3a4a518cc8a63a415431fbd271cae5c7d4/axes_client-0.2.0.tar.gz", hash = "sha256:436794963ec7ebac809bd63e95df6bb80e9ea71254302ddb9d90238b40a70635", size = 48181, upload-time = "2026-07-03T16:00:53.113Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/39/05/916c2e01e0cc13c2e12572fd805f516f05756574241a5e2270cf77cfc9c5/axes_client-0.3.0.tar.gz", hash = "sha256:1f2cdb568ba6ecdfeee4b18c851b776ce2d39c4887d10139444d166eebab66fd", size = 49613, upload-time = "2026-07-09T16:03:32.359Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/85/dc/569c429dd44fa8c378fd798a1a1f66fc7555e0c6943a4c54933e992ec90f/axes_client-0.2.0-py3-none-any.whl", hash = "sha256:0b8e2daec22e82400fb6cf102a0c80045dbe0a506fcae8442173cd829da9da2b", size = 22069, upload-time = "2026-07-03T16:00:52.11Z" },
+    { url = "https://files.pythonhosted.org/packages/07/38/ad0522202beb6849d221049da81ef285eca21ce9715e9b4d301081676af2/axes_client-0.3.0-py3-none-any.whl", hash = "sha256:38e402643e996d8a7e4e802cdbeaaa478bf40e129e7c08010ec0fe34d11124e4", size = 23256, upload-time = "2026-07-09T16:03:31.045Z" },
 ]
 
 [[package]]
@@ -583,7 +583,7 @@ dev = [
 ]
 
 [package.metadata]
-requires-dist = [{ name = "axes-client", specifier = ">=0.2" }]
+requires-dist = [{ name = "axes-client", specifier = ">=0.3" }]
 
 [package.metadata.requires-dev]
 dev = [
