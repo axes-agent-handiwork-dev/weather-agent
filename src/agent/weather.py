@@ -77,10 +77,7 @@ class WeatherAgent(Agent):
             reason = (
                 forecast.get("error") or "get_forecast returned no forecast"
             )
-            return Finish(
-                reason="get_forecast failed",
-                content={"error": reason},
-            )
+            return Finish(reason="get_forecast failed", error=reason)
         advice = results.get("clothing_advisor")
         if advice is None:
             # Step 2: hand the conditions to the clothing_advisor subagent.
@@ -112,10 +109,7 @@ class WeatherAgent(Agent):
             reason = (
                 advice.get("error") or "clothing_advisor returned no advice"
             )
-            return Finish(
-                reason="clothing_advisor failed",
-                content={"error": reason},
-            )
+            return Finish(reason="clothing_advisor failed", error=reason)
         # Step 3: combine imperatively into the finished report.
         report = WeatherContent(
             summary=(

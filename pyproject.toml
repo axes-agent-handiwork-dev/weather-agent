@@ -4,7 +4,7 @@ version = "0.1.0"
 description = "A weather-reporting Chat Plot agent image."
 readme = "README.md"
 requires-python = ">=3.12"
-dependencies = ["axes-client>=0.2"]
+dependencies = ["axes-client>=0.3"]
 
 [build-system]
 requires = ["hatchling"]
